@@ -75,7 +75,7 @@ jobs:
           PATCH=$(grep ^\+ temp-diff.patch | cut -c2-)
           ACCOUNT_ELT=$(echo $PATCH | grep -o -E '(\{ "@type": "/cosmos.auth.v1beta1.BaseAccount"[^}]*})')
           BALANCE_ELT=$(echo $PATCH | grep -o -E '(\{ "address": [^}]*} ] })')
-          GENTX_ELT=$(echo $PATCH | grep -o -E '(\{ "body".*)')
+          GENTX_ELT=$(echo $PATCH | grep -o -E '(\{ "body":.*signatures": [ "[\S].*" ])')
           if [[ $GENTX_ELT != *} ]]; then
             GENTX_ELT=$(echo $GENTX_ELT"}")
           fi
