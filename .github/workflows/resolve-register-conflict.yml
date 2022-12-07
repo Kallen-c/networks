@@ -57,15 +57,18 @@ jobs:
         run: |
           set -eo pipefail
           CHAIN_ID=${{ steps.next-pr.outputs.chain-id }}
+          BRANCH=${{ steps.next-pr.outputs.headRefName }}
 
-          git switch ${{ steps.next-pr.outputs.headRefName }}
+          git switch $BRANCH
 
-          if [ -z "$(git diff --check  main)" ]; then
+          MERGE_BASE=$(git merge-base $BRANCH main)
+          git merge-tree $MERGE_BASE $BRANCH main | xargs |
+          if grep -oe '<<<<<<<.*=======.*>>>>>>>';then
+              echo "conflict-exists=true" >> $GITHUB_OUTPUT
+          else
             echo No merge conflicts
             echo "conflict-exists=false" >> $GITHUB_OUTPUT
             exit 0
-          else
-            echo "conflict-exists=true" >> $GITHUB_OUTPUT
           fi
 
           git diff @~ @ -- chains/$CHAIN_ID/genesis.json > temp-diff.patch
